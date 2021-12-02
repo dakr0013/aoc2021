@@ -13,3 +13,13 @@ fun readFileInt(day: Int, part: Int): List<Int> {
     throw RuntimeException("Failed reading file")
   }
 }
+
+fun readFileString(day: Int, part: Int): List<String> {
+  val paddedDayNumber = day.toString().padStart(2, '0')
+  val uri = object {}.javaClass.getResource("/input$paddedDayNumber$part.txt")?.toURI()
+  if (uri != null) {
+    return Files.readAllLines(Path.of(uri))
+  } else {
+    throw RuntimeException("Failed reading file")
+  }
+}
