@@ -1,7 +1,7 @@
 package com.example
 
 fun main() {
-    val commands = readFileString(2, 1)
+    val commands = readFileString(2)
     var horizontalPosition = 0
     var verticalPosition = 0
     var aim = 0

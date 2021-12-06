@@ -5,7 +5,7 @@ const val maxDays = 256
 
 fun main() {
   val numbers =
-      readFileString(6, 1).first().split(",").map(Integer::parseInt).groupBy { it }.mapValues {
+      readFileString(6).first().split(",").map(Integer::parseInt).groupBy { it }.mapValues {
         it.value.size
       }
 

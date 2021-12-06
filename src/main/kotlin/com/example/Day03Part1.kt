@@ -1,7 +1,7 @@
 package com.example
 
 fun main() {
-  val binaryNumbers = readFileString(3, 1)
+  val binaryNumbers = readFileString(3)
 
   var gammaRate = ""
   var epsilonRate = ""

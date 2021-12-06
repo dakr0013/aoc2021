@@ -3,7 +3,7 @@ package com.example
 import kotlin.math.abs
 
 fun main() {
-  val rawLines = readFileString(5, 1)
+  val rawLines = readFileString(5)
   val points =
       rawLines
           .map {

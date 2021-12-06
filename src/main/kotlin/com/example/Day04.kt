@@ -1,7 +1,7 @@
 package com.example
 
 fun main() {
-  val lines = readFileString(4, 1)
+  val lines = readFileString(4)
   val inputNumbers = lines.first().split(",").map(Integer::parseInt)
 
   val boards = mutableListOf<Board>()
