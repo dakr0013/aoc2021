@@ -1,5 +1,5 @@
 package com.example
 
 fun main() {
-  val numbers = readFileInt(23, 1)
+  val numbers = readFileInt(23)
 }
