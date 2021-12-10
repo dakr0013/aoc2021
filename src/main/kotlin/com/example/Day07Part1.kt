@@ -3,7 +3,7 @@ package com.example
 import kotlin.math.abs
 
 fun main() {
-  val numbers = readFileString(7).first().split(",").map(Integer::parseInt)
+  val numbers = readLinesString(7).first().split(",").map(Integer::parseInt)
 
   val part1 = calcMinTotalFuel(numbers, ::totalFuelPart1)
   val part2 = calcMinTotalFuel(numbers, ::totalFuelPart2)

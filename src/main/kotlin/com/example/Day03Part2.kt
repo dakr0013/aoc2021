@@ -1,7 +1,7 @@
 package com.example
 
 fun main() {
-  val binaryNumbers = readFileString(3)
+  val binaryNumbers = readLinesString(3)
 
   val oxygen = findOxygen(binaryNumbers, 0)
   val co2 = findCO2(binaryNumbers, 0)

@@ -1,7 +1,7 @@
 package com.example
 
 fun main() {
-  val rawLines = readFileString(5)
+  val rawLines = readLinesString(5)
   val points =
       rawLines
           .map {

@@ -14,7 +14,7 @@ fun readFileInt(day: Int): List<Int> {
   }
 }
 
-fun readFileString(day: Int): List<String> {
+fun readLinesString(day: Int): List<String> {
   val paddedDayNumber = day.toString().padStart(2, '0')
   val uri = object {}.javaClass.getResource("/input$paddedDayNumber.txt")?.toURI()
   if (uri != null) {

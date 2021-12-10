@@ -1,8 +1,8 @@
 package com.example
 
 fun main() {
-  val allSignalPatterns = readFileString(8).map { it.split("|")[0].trim().split(" ") }
-  val allOutputDigits = readFileString(8).map { it.split("|")[1].trim().split(" ") }
+  val allSignalPatterns = readLinesString(8).map { it.split("|")[0].trim().split(" ") }
+  val allOutputDigits = readLinesString(8).map { it.split("|")[1].trim().split(" ") }
 
   var sum = 0
   for (i in allSignalPatterns.indices) {
