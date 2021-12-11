@@ -1,7 +1,7 @@
 package com.example
 
 fun main() {
-  val heightmap = readFileString(9).map { it.split("").drop(1).dropLast(1).map(Integer::parseInt) }
+  val heightmap = readLinesString(9).map { it.split("").drop(1).dropLast(1).map(Integer::parseInt) }
 
   val lowPoints = mutableListOf<Point>()
   for (x in heightmap.indices) {
