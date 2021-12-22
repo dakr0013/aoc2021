@@ -1,26 +1,129 @@
 package com.example
 
+import kotlin.math.max
+import kotlin.math.min
+
 fun main() {
   val input = readLinesString(22)
-  val reactorCore = mutableMapOf<Coordinate, CubeState>()
   val rebootSteps = input.map { RebootStep.parse(it) }
-
-  for (rebootStep in rebootSteps) {
-    for (cube in rebootStep.cuboid) {
-      reactorCore[cube] = rebootStep.cubeState
-    }
-  }
-
-  var onCubesCount = 0
-  for (cube in reactorCore.values) {
-    if (cube == CubeState.ON) {
-      onCubesCount++
-    }
-  }
-  println(onCubesCount)
+  val reactorCore = ReactorCore()
+  reactorCore.reboot(rebootSteps)
+  println(reactorCore.turnedOnCubesCount())
 }
 
-class RebootStep(val cubeState: CubeState, val cuboid: Cuboid) {
+class ReactorCore(var turnedOnRegions: List<Cuboid> = emptyList()) {
+  fun reboot(steps: List<RebootStep>) {
+    turnedOnRegions = emptyList()
+    for (step in steps) {
+      val newRegion = step.region
+      val newRegions = mutableListOf<Cuboid>()
+
+      for (region in turnedOnRegions) {
+        if (region.overlaps(newRegion)) {
+          newRegions.addAll(region.subtract(newRegion))
+        } else {
+          newRegions.add(region)
+        }
+      }
+      if (step.cubeState == CubeState.ON) {
+        newRegions.add(newRegion)
+      }
+      turnedOnRegions = newRegions
+    }
+  }
+
+  fun turnedOnCubesCount(): Long {
+    var turnedOnCubes = 0L
+    for (region in turnedOnRegions) {
+      turnedOnCubes += region.cubesCount()
+    }
+    return turnedOnCubes
+  }
+}
+
+data class Cuboid(val from: Coordinate, val to: Coordinate) {
+  fun subtract(other: Cuboid): List<Cuboid> {
+    if (!overlaps(other)) {
+      return listOf(this)
+    } else {
+      val difference = mutableListOf<Cuboid>()
+
+      // positive x -> front
+      // positive y -> right
+      // positive z -> up
+      // --------------------------
+      // back
+      if (this.from.x < other.from.x) {
+        val backRegion =
+            Cuboid(Coordinate(from.x, from.y, from.z), Coordinate(other.from.x - 1, to.y, to.z))
+        difference.add(backRegion)
+      }
+      // front
+      if (this.to.x > other.to.x) {
+        val frontRegion =
+            Cuboid(Coordinate(other.to.x + 1, from.y, from.z), Coordinate(to.x, to.y, to.z))
+        difference.add(frontRegion)
+      }
+      // top
+      if (this.to.z > other.to.z) {
+        val topRegion =
+            Cuboid(
+                Coordinate(max(other.from.x, from.x), from.y, other.to.z + 1),
+                Coordinate(min(other.to.x, to.x), to.y, to.z))
+        difference.add(topRegion)
+      }
+      // bottom
+      if (this.from.z < other.from.z) {
+        val bottomRegion =
+            Cuboid(
+                Coordinate(max(other.from.x, from.x), from.y, from.z),
+                Coordinate(min(other.to.x, to.x), to.y, other.from.z - 1))
+        difference.add(bottomRegion)
+      }
+      // right
+      if (this.to.y > other.to.y) {
+        val rightRegion =
+            Cuboid(
+                Coordinate(max(other.from.x, from.x), other.to.y + 1, max(other.from.z, from.z)),
+                Coordinate(min(other.to.x, to.x), to.y, min(other.to.z, to.z)))
+        difference.add(rightRegion)
+      }
+      // left
+      if (this.from.y < other.from.y) {
+        val leftRegion =
+            Cuboid(
+                Coordinate(max(other.from.x, from.x), from.y, max(other.from.z, from.z)),
+                Coordinate(min(other.to.x, to.x), other.from.y - 1, min(other.to.z, to.z)))
+        difference.add(leftRegion)
+      }
+
+      return difference
+    }
+  }
+
+  fun cubesCount(): Long {
+    val xSize = to.x - from.x + 1L
+    val ySize = to.y - from.y + 1L
+    val zSize = to.z - from.z + 1L
+    return xSize * ySize * zSize
+  }
+
+  fun overlaps(other: Cuboid): Boolean {
+    val xOverlaps = max(other.from.x, from.x) <= min(other.to.x, to.x)
+    val yOverlaps = max(other.from.y, from.y) <= min(other.to.y, to.y)
+    val zOverlaps = max(other.from.z, from.z) <= min(other.to.z, to.z)
+    return xOverlaps && yOverlaps && zOverlaps
+  }
+}
+
+data class Coordinate(val x: Int, val y: Int, val z: Int)
+
+enum class CubeState {
+  ON,
+  OFF
+}
+
+data class RebootStep(val cubeState: CubeState, val region: Cuboid) {
   companion object {
     fun parse(input: String): RebootStep {
       val state =
@@ -49,41 +152,4 @@ class RebootStep(val cubeState: CubeState, val cuboid: Cuboid) {
       return RebootStep(state, cuboid)
     }
   }
-}
-
-class Cuboid(val from: Coordinate, val to: Coordinate) : Iterable<Coordinate> {
-  override fun iterator(): Iterator<Coordinate> = CuboidIterator(from, to)
-
-  internal class CuboidIterator(private val from: Coordinate, to: Coordinate) :
-      Iterator<Coordinate> {
-    private val maxX = to.x - from.x
-    private val maxY = to.y - from.y
-    private val maxZ = to.z - from.z
-    private var currentX = 0
-    private var currentY = 0
-    private var currentZ = 0
-
-    override fun hasNext() = currentX <= maxX && currentY <= maxY && currentZ <= maxZ
-
-    override fun next(): Coordinate {
-      val next = Coordinate(from.x + currentX, from.y + currentY, from.z + currentZ)
-      currentZ++
-      if (currentZ > maxZ) {
-        currentZ = 0
-        currentY++
-        if (currentY > maxY) {
-          currentY = 0
-          currentX++
-        }
-      }
-      return next
-    }
-  }
-}
-
-data class Coordinate(val x: Int, val y: Int, val z: Int)
-
-enum class CubeState {
-  ON,
-  OFF
 }
