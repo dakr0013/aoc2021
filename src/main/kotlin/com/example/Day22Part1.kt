@@ -8,10 +8,13 @@ fun main() {
   val rebootSteps = input.map { RebootStep.parse(it) }
   val reactorCore = ReactorCore()
   reactorCore.reboot(rebootSteps)
-  println(reactorCore.turnedOnCubesCount())
+  println(reactorCore.turnedOnCubesCount(true))
 }
 
 class ReactorCore(var turnedOnRegions: List<Cuboid> = emptyList()) {
+  private val initializationProcedureRegion =
+      Cuboid(Coordinate(-50, -50, -50), Coordinate(50, 50, 50))
+
   fun reboot(steps: List<RebootStep>) {
     turnedOnRegions = emptyList()
     for (step in steps) {
@@ -32,10 +35,15 @@ class ReactorCore(var turnedOnRegions: List<Cuboid> = emptyList()) {
     }
   }
 
-  fun turnedOnCubesCount(): Long {
+  fun turnedOnCubesCount(onlyConsiderInitProcedureRegion: Boolean = false): Long {
     var turnedOnCubes = 0L
     for (region in turnedOnRegions) {
-      turnedOnCubes += region.cubesCount()
+      turnedOnCubes +=
+          if (onlyConsiderInitProcedureRegion) {
+            region.cubesCount(initializationProcedureRegion)
+          } else {
+            region.cubesCount()
+          }
     }
     return turnedOnCubes
   }
@@ -101,11 +109,19 @@ data class Cuboid(val from: Coordinate, val to: Coordinate) {
     }
   }
 
-  fun cubesCount(): Long {
-    val xSize = to.x - from.x + 1L
-    val ySize = to.y - from.y + 1L
-    val zSize = to.z - from.z + 1L
-    return xSize * ySize * zSize
+  fun cubesCount(withIn: Cuboid = maxSized): Long {
+    if (withIn == maxSized) {
+      val xSize = to.x - from.x + 1L
+      val ySize = to.y - from.y + 1L
+      val zSize = to.z - from.z + 1L
+      return xSize * ySize * zSize
+    }
+    if (!this.overlaps(withIn)) {
+      return 0L
+    }
+    val overallCubeCount = this.cubesCount()
+    val cubeCountOutside = this.subtract(withIn).sumOf { it.cubesCount() }
+    return overallCubeCount - cubeCountOutside
   }
 
   fun overlaps(other: Cuboid): Boolean {
@@ -113,6 +129,13 @@ data class Cuboid(val from: Coordinate, val to: Coordinate) {
     val yOverlaps = max(other.from.y, from.y) <= min(other.to.y, to.y)
     val zOverlaps = max(other.from.z, from.z) <= min(other.to.z, to.z)
     return xOverlaps && yOverlaps && zOverlaps
+  }
+
+  companion object {
+    val maxSized =
+        Cuboid(
+            Coordinate(Int.MIN_VALUE, Int.MIN_VALUE, Int.MIN_VALUE),
+            Coordinate(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE))
   }
 }
 
