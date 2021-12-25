@@ -1,8 +1,5 @@
 package com.example
 
-import kotlin.math.max
-import kotlin.math.min
-
 fun main() {
   val input = readLinesString(22)
   val rebootSteps = input.map { RebootStep.parse(it) }
@@ -76,32 +73,34 @@ data class Cuboid(val from: Coordinate, val to: Coordinate) {
       if (this.to.z > other.to.z) {
         val topRegion =
             Cuboid(
-                Coordinate(max(other.from.x, from.x), from.y, other.to.z + 1),
-                Coordinate(min(other.to.x, to.x), to.y, to.z))
+                Coordinate(Math.max(other.from.x, from.x), from.y, other.to.z + 1),
+                Coordinate(Math.min(other.to.x, to.x), to.y, to.z))
         difference.add(topRegion)
       }
       // bottom
       if (this.from.z < other.from.z) {
         val bottomRegion =
             Cuboid(
-                Coordinate(max(other.from.x, from.x), from.y, from.z),
-                Coordinate(min(other.to.x, to.x), to.y, other.from.z - 1))
+                Coordinate(Math.max(other.from.x, from.x), from.y, from.z),
+                Coordinate(Math.min(other.to.x, to.x), to.y, other.from.z - 1))
         difference.add(bottomRegion)
       }
       // right
       if (this.to.y > other.to.y) {
         val rightRegion =
             Cuboid(
-                Coordinate(max(other.from.x, from.x), other.to.y + 1, max(other.from.z, from.z)),
-                Coordinate(min(other.to.x, to.x), to.y, min(other.to.z, to.z)))
+                Coordinate(
+                    Math.max(other.from.x, from.x), other.to.y + 1, Math.max(other.from.z, from.z)),
+                Coordinate(Math.min(other.to.x, to.x), to.y, Math.min(other.to.z, to.z)))
         difference.add(rightRegion)
       }
       // left
       if (this.from.y < other.from.y) {
         val leftRegion =
             Cuboid(
-                Coordinate(max(other.from.x, from.x), from.y, max(other.from.z, from.z)),
-                Coordinate(min(other.to.x, to.x), other.from.y - 1, min(other.to.z, to.z)))
+                Coordinate(Math.max(other.from.x, from.x), from.y, Math.max(other.from.z, from.z)),
+                Coordinate(
+                    Math.min(other.to.x, to.x), other.from.y - 1, Math.min(other.to.z, to.z)))
         difference.add(leftRegion)
       }
 
@@ -125,9 +124,9 @@ data class Cuboid(val from: Coordinate, val to: Coordinate) {
   }
 
   fun overlaps(other: Cuboid): Boolean {
-    val xOverlaps = max(other.from.x, from.x) <= min(other.to.x, to.x)
-    val yOverlaps = max(other.from.y, from.y) <= min(other.to.y, to.y)
-    val zOverlaps = max(other.from.z, from.z) <= min(other.to.z, to.z)
+    val xOverlaps = Math.max(other.from.x, from.x) <= Math.min(other.to.x, to.x)
+    val yOverlaps = Math.max(other.from.y, from.y) <= Math.min(other.to.y, to.y)
+    val zOverlaps = Math.max(other.from.z, from.z) <= Math.min(other.to.z, to.z)
     return xOverlaps && yOverlaps && zOverlaps
   }
 
