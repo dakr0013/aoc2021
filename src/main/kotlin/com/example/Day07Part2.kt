@@ -1,5 +1,5 @@
 package com.example
 
 fun main() {
-  val numbers = readFileInt(7)
+  val numbers = readLinesInt(7)
 }
